@@ -54,13 +54,13 @@ const setPortCounter = async () => {
  *       500:
  *         description: Internal server error
  */
-proxyController.post('/api/proxy/generate', async (req, res) => {
+proxyController.post('/generate/:count', async (req, res) => {
   try {
-    const { count } = req.body; // Number of proxies to generate
+    const count = req.params.count;
 
     const proxies = [];
     let portCounter = await setPortCounter()
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < parseInt(count); i++) {
       // Increment the port counter
       const port = portCounter.toString();
       portCounter++;

@@ -16,6 +16,6 @@ const proxyDetailsSchema = new Schema<IProxyDetails>({
   isUsed: { type: Boolean, required: true },
 });
 
-const Proxy = mongoose.model<IProxyDetails>("ProxyDetails", proxyDetailsSchema);
+const Proxy = mongoose.model<IProxyDetails>("Proxys", proxyDetailsSchema);
 
 export default Proxy;
