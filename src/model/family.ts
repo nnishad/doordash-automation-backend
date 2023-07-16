@@ -9,7 +9,10 @@ interface IDoorDashAccount extends Document {
   address: string;
   referralLink?: string;
   createdAt: Date;
+  orderId?: string;
+  key?: string;
 }
+
 
 // Define the interface for the Family document
 interface IFamily extends Document {
@@ -26,6 +29,8 @@ const DoorDashAccountSchema = new Schema<IDoorDashAccount>({
   address: { type: String, required: true },
   referralLink: { type: String },
   createdAt: { type: Date, default: Date.now },
+  orderId: { type: String },
+  key: { type: String },
 });
 
 // Define the Family schema

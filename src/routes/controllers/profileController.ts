@@ -92,10 +92,10 @@ profileController.get("/:uuid", async (req, res) => {
     }
 });
 
-profileController.post("/:uuid/family/parent", async (req,res): Promise<void> => {
+profileController.post("/:uuid/family/parent", async (req, res): Promise<void> => {
     try {
         const { uuid } = req.params;
-        const { parentEmail, parentPassword, parentPhone, parentAddress } = req.body;
+        const { parentEmail, parentPassword, parentPhone, parentAddress, orderId, key } = req.body;
 
         // Find the profile document by UUID
         const profile: IProfile | null = await Profile.findOne({ uuid });
@@ -122,6 +122,8 @@ profileController.post("/:uuid/family/parent", async (req,res): Promise<void> =>
             password: parentPassword,
             phone: parentPhone,
             address: parentAddress,
+            orderId: orderId,
+            key: key,
         };
 
         // Create the family object with only the parent
@@ -131,7 +133,7 @@ profileController.post("/:uuid/family/parent", async (req,res): Promise<void> =>
         };
 
         // Update the profile document with the new family
-        profile.family = (family as IFamily);
+        profile.family = family as IFamily;
         await profile.save();
 
         res.status(200).json(profile);
