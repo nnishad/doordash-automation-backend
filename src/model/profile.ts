@@ -1,6 +1,4 @@
 import mongoose, { Schema, Document } from "mongoose";
-import {IFamily} from "./family";
-// import { IAccount } from "./account";
 
 interface INavigator {
   userAgent: string;
@@ -116,7 +114,6 @@ export interface IProfile extends Document {
   ports: IPorts;
   browser: string;
   os: string;
-  family: IFamily | null;
 }
 
 const defaultNavigator: INavigator = {
@@ -178,7 +175,6 @@ const defaultWebGL: IWebGL = {
   mode: "NOISE",
 };
 
-const defaultFamily: IFamily[] = [];
 
 const profileSchema = new Schema<IProfile>({
   uuid: { type: String },
@@ -198,9 +194,8 @@ const profileSchema = new Schema<IProfile>({
   webGL: { type: Object, default: defaultWebGL },
   browser: { type: String, required: true, default: "mimic" },
   os: { type: String, required: true, default: "win" },
-  family: { type: Object, default: null },
 });
 
 const Profile = mongoose.model<IProfile>("Profile", profileSchema);
 
-export default Profile;
+export {Profile, INetworkProxy};

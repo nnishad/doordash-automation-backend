@@ -1,45 +1,52 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
+import { v4 as uuidv4 } from "uuid"; // Import v4 from the uuid library
 
-// Define the interface for the DoorDash account document
-interface IDoorDashAccount extends Document {
-  _id: mongoose.Types.ObjectId;
+interface IAccountCredentials {
   email: string;
   password: string;
   phone: string;
-  address: string;
-  referralLink?: string;
-  createdAt: Date;
-  orderId?: string;
-  key?: string;
 }
 
-
-// Define the interface for the Family document
-interface IFamily extends Document {
-  _id: mongoose.Types.ObjectId;
-  parent: IDoorDashAccount;
-  children?: IDoorDashAccount[];
+interface IChildProfile extends Document {
+  // uuid: string;
+  name: string;
+  multiLoginProfileId: string;
+  accountCredentials: IAccountCredentials;
 }
 
-// Define the DoorDash account schema
-const DoorDashAccountSchema = new Schema<IDoorDashAccount>({
+interface IParentProfile extends Document {
+  // uuid: string;
+  name: string;
+  accountCredentials: IAccountCredentials;
+  smsPoolOrderId: string;
+  referralLink: string;
+  multiLoginProfileId: string;
+  children: IChildProfile[];
+}
+
+const accountCredentialsSchema = new Schema<IAccountCredentials>({
   email: { type: String, required: true },
   password: { type: String, required: true },
   phone: { type: String, required: true },
-  address: { type: String, required: true },
-  referralLink: { type: String },
-  createdAt: { type: Date, default: Date.now },
-  orderId: { type: String },
-  key: { type: String },
 });
 
-// Define the Family schema
-const FamilySchema = new Schema<IFamily>({
-  parent: { type: DoorDashAccountSchema, required: true },
-  children: [{ type: DoorDashAccountSchema }],
+const childProfileSchema = new Schema<IChildProfile>({
+  // uuid: { type: String, default: uuidv4, unique: true },
+  name: { type: String, required: true },
+  accountCredentials: { type: accountCredentialsSchema, required: true },
+  multiLoginProfileId: { type: String , required: true},
 });
 
-// Create and export the Family model
-const Family = mongoose.model<IFamily>("Family", FamilySchema);
+const parentProfileSchema = new Schema<IParentProfile>({
+  // uuid: { type: String, default: uuidv4, unique: true },
+  name: { type: String, required: true },
+  accountCredentials: { type: accountCredentialsSchema, required: true },
+  smsPoolOrderId: { type: String, required: true },
+  referralLink: { type: String, required: true },
+  multiLoginProfileId: { type: String , required: true},
+  children: { type: [childProfileSchema], default: [] },
+});
 
-export { Family, IFamily, IDoorDashAccount };
+const Family = mongoose.model<IParentProfile>("Family", parentProfileSchema);
+
+export { Family, IParentProfile, IChildProfile };

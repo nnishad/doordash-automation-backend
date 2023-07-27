@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { profileController } from "./controllers/profileController";
-import {proxyController} from "./controllers/proxyController";
 import {mockController} from "./controllers/mockController";
+import {familyController} from "./controllers/familyController";
 
 const router = Router();
 
 router.use("/profile", profileController);
-router.use("/proxy", proxyController);
+router.use("/family", familyController);
 router.use("/mock", mockController);
 export default router;

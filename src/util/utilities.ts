@@ -1,6 +1,4 @@
-// Generate random warmup configuration
-import { IProxyDetails } from "../model/proxy";
-import Profile, { IProfile } from "../model/profile";
+import {INetworkProxy, IProfile, Profile} from "../model/profile";
 import { faker } from "@faker-js/faker";
 import UserAgent from "user-agents";
 
@@ -51,7 +49,7 @@ export const generateUserAgent = (osType: string, deviceType: string) => {
   return agent.random();
 };
 
-export const generateProfile = (proxy: IProxyDetails): IProfile => {
+export const generateProfile = (port: number): IProfile => {
   const profileId = faker.string.uuid();
   const os = faker.helpers.arrayElement(["win", "lin", "mac"]);
   let userAgent;
@@ -69,6 +67,17 @@ export const generateProfile = (proxy: IProxyDetails): IProfile => {
       userAgent = generateUserAgent("iPhone", "mobile");
       break;
   }
+
+  // Replace the following lines with your code to retrieve proxy host, username, and password from environment or configuration
+  const proxyHost = process.env.PROXY_HOST;
+  const proxyUsername = process.env.PROXY_USERNAME;
+  const proxyPassword = process.env.PROXY_PASSWORD;
+
+  // Check if any of the required environment variables are missing or null
+  if (!proxyHost || !proxyUsername || !proxyPassword) {
+    throw new Error("Missing required environment variables for the proxy.");
+  }
+
   // const os = agent.os.family;
   const newProfile: Partial<IProfile> = {
     name: profileId,
@@ -82,17 +91,49 @@ export const generateProfile = (proxy: IProxyDetails): IProfile => {
       doNotTrack: 0,
       hardwareConcurrency: 4,
     },
-    network: {
-      proxy: {
-        type: "HTTP",
-        host: proxy.host,
-        port: proxy.port,
-        username: proxy.username,
-        password: proxy.password,
-      },
-    },
+        network: {
+          proxy: {
+            type: "HTTP",
+            host: proxyHost,
+            port: port.toString(), // Convert the port number to string
+            username: proxyUsername,
+            password: proxyPassword,
+          },
+        },
     os: os,
   };
 
   return new Profile(newProfile);
+};
+
+
+// Function to find an available port
+export const findAvailablePort = async (): Promise<number | null> => {
+  const usedPorts: Set<number> = new Set();
+
+  try {
+    // Fetch all profiles from the database
+    const profiles: IProfile[] = await Profile.find({}, "network.proxy");
+
+    // Loop through each profile and add the used ports to the set
+    profiles.forEach((profile) => {
+      const proxy: INetworkProxy | undefined = profile.network?.proxy;
+      if (proxy?.port) {
+        usedPorts.add(Number(proxy.port));
+      }
+    });
+
+    // Find the first available port in the rotation proxy range (10200 to 10300)
+    for (let port = 10200; port <= 10300; port++) {
+      if (!usedPorts.has(port)) {
+        return port;
+      }
+    }
+
+    // If no available port is found
+    return null;
+  } catch (error) {
+    console.error("Error finding available port:", error);
+    return null;
+  }
 };
